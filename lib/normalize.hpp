@@ -4,6 +4,7 @@
 #include "matcher.hpp"
 #include "pass.hpp"
 #include "result.hpp"
+#include "stack_counter.hpp"
 
 /// region normalize ///===----------------------------------------------===///
 

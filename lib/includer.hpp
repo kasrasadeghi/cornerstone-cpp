@@ -4,12 +4,13 @@
 #include "matcher.hpp"
 #include "pass.hpp"
 #include "result.hpp"
-
+#include "io.hpp"
 #include "print.hpp"
 
-/// region include ///===----------------------------------------------===///
+/// include ///===--------------------------------------------------------===///
 
 /// a naive includer, like #include in C but without declaration reconciliation.
+/// - uses relative paths from the current file
 struct Includer {
 Grammar g;
 Matcher m;
