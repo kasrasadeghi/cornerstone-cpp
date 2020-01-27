@@ -224,3 +224,23 @@ TEST(string, remove_quotes)
     std::string contents = str.substr(1, str.length() - 2);
     ASSERT_EQ(contents, "what");
   }
+
+TEST(string, basename_dirname_absolute)
+  {
+    std::string path = "/home/kasra/projects/cornerstone/lib/main-driver.bb";
+
+    auto basename = path.substr(path.rfind('/') + 1);
+    ASSERT_EQ(basename, "main-driver.bb");
+    auto dirname  = path.substr(0, path.rfind('/') + 1);
+    ASSERT_EQ(dirname, "/home/kasra/projects/cornerstone/lib/");
+  }
+
+TEST(string, basename_dirname_relative)
+  {
+    std::string path = "../cornerstone/lib/main-driver.bb";
+
+    auto basename = path.substr(path.rfind('/') + 1);
+    ASSERT_EQ(basename, "main-driver.bb");
+    auto dirname  = path.substr(0, path.rfind('/') + 1);
+    ASSERT_EQ(dirname, "../cornerstone/lib/");    
+  }
