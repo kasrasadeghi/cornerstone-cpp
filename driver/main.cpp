@@ -4,6 +4,7 @@
 #include "matcher.hpp"
 #include "print.hpp"
 #include "io.hpp"
+#include "config.hpp"
 
 int main(int argc, char* argv[])
   {
@@ -11,7 +12,7 @@ int main(int argc, char* argv[])
 
     program = passes(program);
 
-    Grammar bb_g (parse_from_file("docs/bb-grammar.texp")[0]);
+    Grammar bb_g (parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]);
     Matcher bb_m {bb_g};
 
     if (auto proof = bb_m.is(program, "Program"); proof.value == "success")

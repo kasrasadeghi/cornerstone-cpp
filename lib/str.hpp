@@ -4,6 +4,7 @@
 #include "matcher.hpp"
 #include "io.hpp"
 #include "result.hpp"
+#include "config.hpp"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -20,7 +21,7 @@ Grammar g;
 Matcher m;
 StrEnv env;
 
-Str(): g(parse_from_file("docs/bb-type-tall-str-grammar.texp")[0]), m(g) {}
+Str(): g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-grammar.texp")[0]), m(g) {}
 
 Texp Program(const Texp& texp)
   {

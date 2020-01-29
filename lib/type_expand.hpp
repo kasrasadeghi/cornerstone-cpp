@@ -5,6 +5,7 @@
 #include "io.hpp"
 #include "llvmtype.hpp"
 #include "result.hpp"
+#include "config.hpp"
 
 #include <unordered_map>
 #include <string>
@@ -72,7 +73,7 @@ Grammar g;
 Matcher m;
 TypeExpandEnv env;
 
-TypeInfer(): g(parse_from_file("docs/bb-type-grammar.texp")[0]), m(g) {}
+TypeInfer(): g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-grammar.texp")[0]), m(g) {}
 
 Texp Program(const Texp& texp)
   {

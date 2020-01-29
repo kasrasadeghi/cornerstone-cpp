@@ -6,6 +6,7 @@
 #include "result.hpp"
 #include "io.hpp"
 #include "print.hpp"
+#include "config.hpp"
 
 /// include ///===--------------------------------------------------------===///
 
@@ -18,7 +19,7 @@ std::string _dirname;
 std::string _basename;
 
 Includer():
-  g(parse_from_file("docs/bb-type-tall-str-include-grammar.texp")[0]), m(g) {}
+  g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-include-grammar.texp")[0]), m(g) {}
 
 Texp Program(const Texp& texp)
   {

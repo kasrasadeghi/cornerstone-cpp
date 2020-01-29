@@ -5,6 +5,7 @@
 #include "pass.hpp"
 #include "result.hpp"
 #include "stack_counter.hpp"
+#include "config.hpp"
 
 /// region normalize ///===----------------------------------------------===///
 
@@ -14,7 +15,7 @@ Matcher m;
 StackCounter* _sc;
 
 Normalize():
-  g(parse_from_file("docs/bb-type-tall-grammar.texp")[0]), m(g), _sc(nullptr) {}
+  g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-grammar.texp")[0]), m(g), _sc(nullptr) {}
 
 Texp Program(const Texp& texp)
   {
