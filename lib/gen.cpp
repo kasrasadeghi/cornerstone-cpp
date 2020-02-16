@@ -474,7 +474,7 @@ struct LLVMGenerator {
     {
       print("(");
       int i = 0;
-      CHECK(texp.size() == types.size(), "wrong argument count for " + texp.paren());
+      CHECK(texp.size() == types.size(), "wrong argument count for " + texp.paren() + ", expecting '" + types.paren() + "'");
       for (Texp arg : texp)
         {
           Type(types[i], types_proof[i]);
