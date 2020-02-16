@@ -45,7 +45,7 @@ Texp Matcher::sequence(const Texp& texp, const Texp& type_names, int start, int 
 Texp Matcher::exact(const Texp& texp, const Texp& rule)
   {
     if (rule.size() != texp.size())
-      return Texp("error", {Texp("\"texp does not match exact rule size\"")});
+      return Texp("error", {Texp("texp-rule-size-mismatch"), rule, texp});
 
     Texp proof {"exact"};
 
@@ -92,7 +92,10 @@ Texp Matcher::kleene(const Texp& texp, std::string_view type_name, int first)
     for (int i = first; i < texp.size(); ++i)
       {
         Texp result_i = is(texp[i], type_name);
-        if (result_i.value == "error") return result_i; // TODO maybe add intermediary error reporting
+        if (result_i.value == "error")
+          {
+            return result_i;
+          }
         else proof.push(result_i[0]);
       }
     return {"success", {proof}};
@@ -143,21 +146,26 @@ Texp Matcher::matchKleene(const Texp& texp, const Texp& rule)
 
     // early exit for when texp cannot even match the non-kleene sequence
     if (texp.size() < rule.size() - 1)
-      return Texp("error", {Texp("\"failed texp.len < rule.len - 1\""), rule, texp});
+      return Texp("error", {Texp("\"failed texp.len < rule.len - 1\""), texp, rule});
 
     if (rule.size() == 1)
-      return kleene(texp, type_name);
+      {
+        auto kle_single = kleene(texp, type_name);
+        if (kle_single.value == "error")
+          return {"error", {Texp("kleene-single-fail"), kle_single, Texp(std::string(type_name))}}; // TODO add %texp as last argument once we have a collapsable viewer of texps
+        return kle_single;
+      }
 
     Texp proof {"kleene"};
     auto seq = sequence(texp, rule, 0, rule.size() - 1);
     if (seq.value == "error")
-      return seq; // TODO add kleene specific error reporting
+      return {"error", {Texp("kleene-seq-fail"), seq, Texp(std::string(type_name))}}; // TODO add %texp as last argument once we have a collapsable viewer of texps
     for (Texp child : seq[0])
       proof.push(child);
     
     auto kle = kleene(texp, type_name, rule.size() - 1);
     if (kle.value == "error")
-      return kle; // TODO add kleene specific error reporting
+      return {"error", {Texp("kleene-many-fail"), kle, Texp(std::string(type_name))}}; // TODO add %texp as last argument once we have a collapsable viewer of texps
     for (Texp child : kle[0])
       proof.push(child);
 
