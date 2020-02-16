@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <sstream>
 
 using std::string;
 using std::vector;
@@ -55,8 +56,10 @@ Texp Parser::texp()
 
 Texp Parser::atom() 
   {
+    auto get_reader_rest = [](Reader& r){ std::stringstream ss; ss << r; return ss.str(); };
     // std::cout << "parsing atom\n";
-    assert(_r.peek() != ')'); //TODO assert *_r isn't special
+    //TODO assert _r.peek() isn't special
+    CHECK(_r.peek() != ')', "unmatched toplevel close paren found" + get_reader_rest(_r));
     if (_r.peek() == '\'') return _char();
     if (_r.peek() == '\"') return _string();
     return Texp(word());
