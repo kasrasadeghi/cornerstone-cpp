@@ -14,21 +14,25 @@
  * Escaped Characters: \xx
  *  - x stands for any capital hexadecimal digit.
  */
-size_t atomStrLen(const char* s) {
-  size_t len = 0;
-  for (;*s; s++, len++) {
-    if (*s == '\\') {
-      int counter = 0;
-      s++; counter += isxdigit(*s) != 0;
-      s++; counter += isxdigit(*s) != 0;
-      if (counter != 2) {
-        fprintf(stderr, "backbone: Backslash not followed by two hexadecimal digits.");
-        exit(EXIT_FAILURE);
+size_t atomStrLen(const char* s)
+  {
+    size_t len = 0;
+    for (;*s; s++, len++)
+      {
+        if (*s == '\\')
+          {
+            int counter = 0;
+            s++; counter += isxdigit(*s) != 0;
+            s++; counter += isxdigit(*s) != 0;
+            if (counter != 2)
+              {
+                fprintf(stderr, "backbone: Backslash not followed by two hexadecimal digits.");
+                exit(EXIT_FAILURE);
+              }
+          }
       }
-    }
+    return len;
   }
-  return len;
-}
 
 struct LLVMGenerator {
   Texp root;
