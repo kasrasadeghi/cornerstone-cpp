@@ -6,7 +6,6 @@ runcmd=build/driver/cornerstone ../cornerstone/lib/main-driver.bb
 
 .PHONY: default
 default: build
-	${runcmd}
 
 .PHONY: run
 run: compile
@@ -15,10 +14,6 @@ run: compile
 .PHONY: gdb
 gdb: build
 	gdb -q --args ${runcmd}
-
-.PHONY: test-gdb
-test-gdb: test-build
-	gdb -q --args build/test/${PROJECT_NAME}_test --gtest_color=yes
 
 .PHONY: compile
 compile: build
@@ -46,6 +41,10 @@ matcher: compile
 test-build:
 	@[[ -d build ]] || mkdir build
 	cd build; cmake -DGTEST=True ..; make -j8
+
+.PHONY: test-gdb
+test-gdb: test-build
+	gdb -q --args build/test/${PROJECT_NAME}_test --gtest_color=yes
 
 .PHONY: test
 test: test-build
