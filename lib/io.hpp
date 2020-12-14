@@ -6,6 +6,7 @@
 #include "print.hpp"
 
 #include <fstream>
+#include <sstream>
 #include <filesystem>
 
 inline std::string collect_stdin() 

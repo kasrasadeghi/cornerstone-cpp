@@ -52,8 +52,10 @@ void UnionMatch(const Grammar& g,
   {
     CHECK(g.parseType(parent_type_name), "parent choice '" + std::string(parent_type_name) + "' not in grammar")
     Grammar::Type texp_type = parseChoice(g, proof, parent_type_name);
-    for (auto& [case_name, case_f] : cases) 
+    for (auto pair : cases) 
       {
+        auto case_name = pair.first;
+        auto case_f = pair.second;  
         Grammar::Type case_type = CHECK_UNWRAP(g.parseType(case_name), "case '" + std::string(case_name) + "' not in grammar.");
         if (case_type == texp_type)
           {
