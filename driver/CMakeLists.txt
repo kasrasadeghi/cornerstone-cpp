@@ -1,4 +1,4 @@
-set(matcher_src "")
+set(driver_src "")
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR} driver_src)
 add_executable(${PROJECT_NAME} ${driver_src})
 
