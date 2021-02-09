@@ -11,6 +11,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -O3")
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 add_subdirectory(lib)
 
 if (GTEST)
@@ -19,6 +21,9 @@ else (GTEST)
   add_subdirectory(driver)
   add_subdirectory(matcher)
   add_subdirectory(parser)
+  add_subdirectory(select)
+  add_subdirectory(runner)
+  add_subdirectory(bbfmt)
 endif (GTEST)
 
 add_subdirectory(tester)
