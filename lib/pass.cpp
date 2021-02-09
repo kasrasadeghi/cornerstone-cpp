@@ -9,7 +9,7 @@
 
 /// region public pass runner ///===-------------------------------------===///
 
-Texp passes(const Texp& tree) 
+Texp run_all_passes(const Texp& tree)
   {
     Texp curr = tree;
     {

@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
   {
     Texp program = (argc == 1) ? parse() : parse_from_file(argv[1]);
 
-    program = passes(program);
+    program = run_all_passes(program);
 
     Grammar bb_g (parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]);
     Matcher bb_m {bb_g};

@@ -1,4 +1,4 @@
 #pragma once
 #include "texp.hpp"
 
-Texp passes(const Texp& tree);
+Texp run_all_passes(const Texp& tree);
