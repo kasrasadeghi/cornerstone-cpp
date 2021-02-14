@@ -43,20 +43,12 @@ int main(int argc, char* argv[])
 
     // read program
     const Texp program = parse_from_file(filename);
-    Texp curr = program; // mutable copy
+    Texp curr = run_passes_until(program, passname);
 
-    for (const auto& [curr_passname, passf] : passes)
+    for (const auto& toplevel : curr)
       {
-        passf(curr);
-        if (curr_passname == passname)
-          {
-            // don't print the filename, print the toplevels
-            for (const auto& toplevel : curr)
-              {
-                println(toplevel.paren());
-              }
-            return 0;
-          }
+        println(toplevel.paren());
+        return 0;
       }
 
     // TODO prove output
