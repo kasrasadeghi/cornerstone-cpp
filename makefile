@@ -63,3 +63,11 @@ list-tests: test-build
 .PHONY: clean
 clean:
 	rm -rf build
+
+# === PROFILE =============================================
+
+.PHONY: profile
+profile\:%:
+	valgrind --tool=callgrind "bin/$*"
+	kcachegrind callgrind.out.*
+	rm -f callgrind.out.*
