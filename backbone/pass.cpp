@@ -9,6 +9,14 @@
 
 /// region pass ///===-------------------------------------===///
 
+static const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> PASSES =
+  {
+    {"include",   [](Texp& t) { Includer  p; t = p.Program(t); }},
+    {"str",       [](Texp& t) { Str       p; t = p.Program(t); }},
+    {"normalize", [](Texp& t) { Normalize p; t = p.Program(t); }},
+    {"typeinfer", [](Texp& t) { TypeInfer p; t = p.Program(t); }},
+  };
+
 Texp run_all_passes(const Texp& tree)
   {
     Texp curr = tree;
@@ -33,26 +41,18 @@ Texp run_all_passes(const Texp& tree)
 
 std::string get_passlist(void)
   {
-    const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>>& passes =
-      {
-        {"include",   [](Texp& t) { Includer  p; t = p.Program(t); }},
-        {"str",       [](Texp& t) { Str       p; t = p.Program(t); }},
-        {"normalize", [](Texp& t) { Normalize p; t = p.Program(t); }},
-        {"typeinfer", [](Texp& t) { TypeInfer p; t = p.Program(t); }},
-      };
-
     std::string acc;
-    for (const auto& pass : passes)
+    for (const auto& pass : PASSES)
       {
-        if (&pass != &passes[0]) { acc += ", "; }
+        if (&pass != &PASSES[0]) { acc += ", "; }
         acc += pass.first;
       }
     return acc;
   }
 
-bool is_pass(std::string_view s)
+bool is_pass(std::string_view passname)
   {
-    for (const auto& [curr_passname, passf]: passes)
+    for (const auto& [curr_passname, passf]: PASSES)
       {
         if (passname == curr_passname)
           {
@@ -61,6 +61,22 @@ bool is_pass(std::string_view s)
       }
 
     return false;
+  }
+
+Texp run_passes_until(Texp curr, std::string_view passname)
+  {
+    for (const auto& [curr_passname, passf] : PASSES)
+      {
+        passf(curr);
+        if (curr_passname == passname)
+          {
+            return curr;
+          }
+      }
+
+    auto str = [](auto s) { return std::string(s); };
+
+    CHECK(false, str("passname '") + str(passname) + str("' not in ") + get_passlist());
   }
 
 /// endregion pass ///===----------------------------------===///
