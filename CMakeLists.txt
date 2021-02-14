@@ -25,6 +25,7 @@ else (GTEST)
   add_subdirectory(select)
   add_subdirectory(runner)
   add_subdirectory(bbfmt)
+  add_subdirectory(plumber)
 endif (GTEST)
 
 add_subdirectory(tester)
