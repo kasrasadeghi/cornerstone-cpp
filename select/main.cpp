@@ -3,7 +3,7 @@
 #include "print.hpp"
 #include "io.hpp"
 
-constexpr static std::string_view PLACEHOLDER = "_";
+#include "select.hpp"
 
 int main(int argc, char* argv[])
   {
@@ -27,31 +27,5 @@ int main(int argc, char* argv[])
 
     println("; CMD: select ", argv[1], " \"", argv[2], "\"");
 
-    // do one level of literal match
-    for (const auto& child : program) {
-
-      // the child matches if it has the same value as the query, and the same one-level pattern for the children's literals
-      if (child.value == query.value) {
-
-        if (query.size() > child.size()) continue;
-
-        bool failure = false;
-
-        // match as long as the query is
-        for (int i = 0; i < query.size(); ++i) {
-          if (query[i].value == PLACEHOLDER) continue;
-
-          if (child[i].value != query[i].value)
-            {
-              failure = true;
-              break;
-            }
-        }
-
-        if (not failure)
-          {
-            println(child.paren());
-          }
-      }
-    }
+    select(program, query, [](const Texp& match){ println(match.paren()); });
   }
