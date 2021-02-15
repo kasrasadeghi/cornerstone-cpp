@@ -1,3 +1,4 @@
+#pragma once
 #include "texp.hpp"
 #include <functional>
 
