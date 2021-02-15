@@ -13,6 +13,15 @@
 // TODO find somewhere better to put this / generalize this
 #include <unordered_set>
 
+// default DEBUG_ENABLED
+#ifndef DEBUG_ENABLED
+#define DEBUG_ENABLED false
+#endif
+
+#define DEBUG(a)    do { if constexpr (DEBUG_ENABLED) { (a); } } while(0);
+// NOTE: undef'd at the end of file
+
+
 struct TypeExpandEnv {
 std::unordered_map<std::string, Texp> globals;
 Texp* _current_def_return_type;
@@ -22,7 +31,7 @@ Texp* curr_def_name;
 public:
 void addLocal(const std::string& key, const std::string& value)
   {
-    print("; ", key, " -> ", value, '\n');
+    DEBUG(print("; ", key, " -> ", value, '\n'));
     _locals.emplace(key, value);
   }
 
@@ -47,7 +56,7 @@ Texp typeOf(const Grammar& g, const Texp& texp, const Texp& proof)
     UnionMatch(g, "Value", texp, proof, {
       {"Name",    [&](const Texp& t, const Texp& p) { type = lookup(t.value); }},
       {"StrGet",  [&](const Texp& t, const Texp& p) { type.value = "i8*"; }},
-      {"Literal", [&](const Texp& t, const Texp& p) { 
+      {"Literal", [&](const Texp& t, const Texp& p) {
         if (parseChoice(g, p, "Literal") == g.shouldParseType("BoolLiteral"))
           type.value = "i1";
         else if (parseChoice(g, p, "Literal") == g.shouldParseType("IntLiteral"))
@@ -119,7 +128,7 @@ Texp TopLevel(const Texp& texp, const Texp& proof)
 Texp Def(const Texp& texp, const Texp& proof)
   {
     // def name params type do
-    print("; def ", texp[0], " env\n");
+    DEBUG(print("; def ", texp[0], " env\n"));
     Texp this_params = Params(texp[1], proof[1]);
 
     Texp return_type = texp[2];
@@ -157,7 +166,7 @@ Texp Stmt(const Texp& texp, const Texp& proof)
       return parseChoice(g, p, "Value") == g.shouldParseType("Name");
     };
 
-    print("; ", texp, "\n");
+    DEBUG(print("; ", texp, "\n"));
 
     Texp this_stmt {""};
     UnionMatch(g, "Stmt", texp, proof, {
@@ -202,7 +211,7 @@ Texp Stmt(const Texp& texp, const Texp& proof)
           CHECK(s.ends_with('*'), s + " cannot be unloc'd if it is not a ptr, in " + env.curr_def_name->paren());
           return s.substr(0, s.length() - 1);
         };
-        
+
         auto content_type_value = Value(t[0], p[0]);
         assert(content_type_value.value == "type-value");
         auto content_type = content_type_value[0];
@@ -215,11 +224,11 @@ Texp Stmt(const Texp& texp, const Texp& proof)
 
         auto unified_type = ([&](){
           using namespace LLVMType;
-          
+
           CHECK(not (loc_type.value == "int"), "location type cannot be an int");
 
           std::string storage_type = unloc(loc_type.value);
-          
+
           if (content_type.value == "int")
             {
               CHECK(isInt(storage_type), "location must be able to contain ints");
@@ -310,7 +319,7 @@ Texp Expr(const Texp& texp, const Texp& proof)
               CHECK(s.ends_with('*'), s + " cannot be unloc'd if it is not a ptr, in " + env.curr_def_name->paren());
               return s.substr(0, s.length() - 1);
             };
-            
+
             auto type = unloc(env.lookup(t[0].value).value);
             this_expr = {t.value, {type, t[0]}};
             this_type = type;
@@ -324,17 +333,17 @@ Texp Expr(const Texp& texp, const Texp& proof)
       {"Index",     [&](const Texp& t, const Texp& p) {
         // index loc-value i-value -> index loc-value type i-value
         // TODO check if loc-value is a struct then i-value must be literal
-        // TODO otherwise check that i-value is of int type 
+        // TODO otherwise check that i-value is of int type
 
         auto unloc = [&](const std::string& s) -> std::string {
           CHECK(s.ends_with('*'), s + " cannot be unloc'd if it is not a ptr, in " + env.curr_def_name->paren());
           return s.substr(0, s.length() - 1);
         };
 
-        auto loc = [](const std::string& s) -> std::string 
+        auto loc = [](const std::string& s) -> std::string
           { return s + "*"; };
 
-        auto to_u64 = [](const std::string& s) -> size_t 
+        auto to_u64 = [](const std::string& s) -> size_t
           { return std::stoull(s); };
 
         Texp env_type = env.lookup(t[0].value);
@@ -344,7 +353,7 @@ Texp Expr(const Texp& texp, const Texp& proof)
             CHECK(env_type.value.ends_with("*"), "texp = '" + texp.paren() + "' env_type == '" + env_type.paren() + "' in " + env.curr_def_name->paren()+ "\n   - can only index struct pointers, try using auto-store for mutable variables\n   - currently there is no way to get the field members of a struct without loading it into an auto or malloc");
             Texp struct_type = unloc(env_type.value);
             this_expr = {t.value, {t[0], struct_type, t[1]}};
-            
+
             Texp struct_def = env.lookup(struct_type.value);
             CHECK(struct_def.value == "struct", "obj type is " + env_type.paren() + " but env contains:\n  " + struct_def.paren());
 
@@ -362,7 +371,7 @@ Texp Expr(const Texp& texp, const Texp& proof)
       }},
       {"Cast",      [&](const Texp& t, const Texp& p) {
         // cast to-type value -> bitcast/ptrtoint/inttoptr from-type to-type value
-        
+
         Texp type_value = Value(t[1], p[1]);
         assert(type_value.value == "type-value");
         Texp from_type = type_value[0];
@@ -376,36 +385,36 @@ Texp Expr(const Texp& texp, const Texp& proof)
           using namespace LLVMType;
           if (isInt(from_type.value) && isPtr(to_type.value))
             return "inttoptr";
-          
+
           //TODO warn/ensure that pointers are cast to u64
           if (isPtr(from_type.value) && isInt(to_type.value))
             return "ptrtoint";
-          
+
           if (isInt(from_type.value) && isInt(to_type.value))
             {
               if (getSize(from_type.value) > getSize(to_type.value))
                 return "trunc";
-              
+
               if (getSize(from_type.value) < getSize(to_type.value))
                 {
                   if (isSignedInt(from_type.value) && isSignedInt(to_type.value))
                     return "sext";
-                  
+
                   if (isUnsignedInt(from_type.value) && isUnsignedInt(to_type.value))
                     return "zext";
-                  
+
                   CHECK(false, "must extend '" + from_type.value + "' to '" + to_type.value + "' but they are not of the same sign.");
                 }
-              
+
               return "bitcast";
             }
-          
+
           CHECK(not (from_type.value == "int" || to_type.value == "int"), "should not cast untyped integer literals");
           CHECK(isPtr(from_type.value) && isPtr(to_type.value), "unreachable otherwise: cast " + from_type.value + " -> " + to_type.value + " in " + env.curr_def_name->paren());
           return "bitcast";
         })();
 
-        print("; value: ", type_value, '\n');
+        DEBUG(print("; value: ", type_value, '\n'));
 
         this_expr = {cast_type, {from_type, to_type, value} };
         this_type = t[0];
@@ -428,8 +437,8 @@ Texp Expr(const Texp& texp, const Texp& proof)
 
 /// call name args -> call name types type args
 // if it is a call-vargs, all literals must be type-qualified
-// otherwise the types at the decl/def are the types expanded at the call site. 
-// 
+// otherwise the types at the decl/def are the types expanded at the call site.
+//
 // TODO argument types must pass unification with declaration types.
 Texp Call(const Texp& texp, const Texp& proof)
   {
@@ -475,10 +484,10 @@ Texp Call(const Texp& texp, const Texp& proof)
       {
         types = decl_types;
       }
-    
+
     // TODO unify arg_types and decl_types
     for (int i = 0; i < arg_types.size(); ++i)
-      { 
+      {
         // check compatibility
       }
 
@@ -490,7 +499,7 @@ Texp Value(const Texp& texp, const Texp& proof)
   {
     if (parseChoice(g, proof, "Value") == g.shouldParseType("Literal")
       && parseChoice(g, proof, "Literal") == g.shouldParseType("IntLiteral")
-      && parseChoice(g, proof, "IntLiteral") == g.shouldParseType("TypedIntLiteral")) 
+      && parseChoice(g, proof, "IntLiteral") == g.shouldParseType("TypedIntLiteral"))
       {
         // if texp is typed, remove type
         return {"type-value", {texp[0], texp.value}};
@@ -502,3 +511,6 @@ Texp Value(const Texp& texp, const Texp& proof)
       }
   }
 };
+
+
+#undef DEBUG
