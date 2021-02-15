@@ -66,8 +66,8 @@ clean:
 
 # === PROFILE =============================================
 
-.PHONY: profile
+.PHONY: profile\:%
 profile\:%:
-	valgrind --tool=callgrind "bin/$*"
+	valgrind --tool=callgrind "$*"
 	kcachegrind callgrind.out.*
 	rm -f callgrind.out.*
