@@ -48,7 +48,17 @@ struct LLVMGenerator {
 
       
       CHECK(root.size() == proof.size(), "proof should be the same size as texp");
-      for (int i = 0; i < root.size(); ++i) 
+
+      // generate structs first
+      for (int i = 0; i < root.size(); ++i)
+        {
+          auto subtexp = root[i];
+          auto subproof = proof[i];
+
+          TopLevelOnlyStruct(subtexp, subproof);
+        }
+
+      for (int i = 0; i < root.size(); ++i)
         {
           auto subtexp = root[i];
           auto subproof = proof[i];
@@ -64,6 +74,18 @@ struct LLVMGenerator {
           {"Decl",     [&](const auto& t, const auto& p) { Decl(t, p); }     },
           {"Def",      [&](const auto& t, const auto& p) { Def(t, p); }      },
           {"StrTable", [&](const auto& t, const auto& p) { StrTable(t, p); } },
+          {"Struct",   [&](const auto& t, const auto& p) { /* nothing */ }   },
+        });
+      print("\n");
+    }
+
+  void TopLevelOnlyStruct(Texp texp, Texp proof)
+    {
+      UnionMatch(grammar, "TopLevel", texp, proof,
+        {
+          {"Decl",     [&](const auto& t, const auto& p) { /* nothing */ }   },
+          {"Def",      [&](const auto& t, const auto& p) { /* nothing */ }   },
+          {"StrTable", [&](const auto& t, const auto& p) { /* nothing */ }   },
           {"Struct",   [&](const auto& t, const auto& p) { Struct(t, p); }   },
         });
       print("\n");
