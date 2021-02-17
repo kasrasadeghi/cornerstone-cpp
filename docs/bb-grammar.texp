@@ -8,7 +8,7 @@
   (Def           (def Name Params Type Do))
   (Decl          (decl Name Types Type))
   (Stmt          (| Let Return If Store Auto Do Call))
-  (If            (if Value Stmt))
+  (If            (if Value Do))
   (Store         (store Value Type Value))
   (Auto          (auto Name Type))
   (Do            (do (* Stmt)))
