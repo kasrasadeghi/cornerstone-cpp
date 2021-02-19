@@ -39,14 +39,14 @@ struct LLVMGenerator {
   Texp proof;
   Grammar grammar;
   LLVMGenerator(Grammar g, const Texp& t, const Texp& p): grammar(g), root(t), proof(p) {}
-  void Program() 
+  void Program()
     {
       print("; ModuleID = ", root.value,
             "\ntarget datalayout = \"e-m:e-i64:64-f80:128-n8:16:32:64-S128\""
             "\ntarget triple = \"x86_64-unknown-linux-gnu\"\n\n");
       print("; ", root, "\n");
 
-      
+
       CHECK(root.size() == proof.size(), "proof should be the same size as texp");
 
       // generate structs first
@@ -66,7 +66,7 @@ struct LLVMGenerator {
           TopLevel(subtexp, subproof);
         }
     }
-  
+
   void TopLevel(Texp texp, Texp proof)
     {
       UnionMatch(grammar, "TopLevel", texp, proof,
@@ -90,7 +90,7 @@ struct LLVMGenerator {
         });
       print("\n");
     }
-  
+
   void StrTable(Texp texp, Texp proof)
     {
       for (int i = 0; i < texp.size(); ++i)
@@ -100,7 +100,7 @@ struct LLVMGenerator {
           print("@str.", i, " = private unnamed_addr constant [", atomStrLen(entry.c_str()) - 2, " x i8] c", entry, ", align 1\n");
         }
     }
-  
+
   void Struct(Texp texp, Texp proof)
     {
       // (struct %struct.Name (* Field))
@@ -113,27 +113,27 @@ struct LLVMGenerator {
         }
       print(" };");
     }
-  
+
   void Decl(Texp texp, Texp proof)
     {
       /// (decl name types type)
       print("declare ", texp[2].value, " ", texp[0].value);
       Types(texp[1], proof[1]);
     }
-  
+
   void Types(Texp texp, Texp proof)
     {
       /// (types type*)
       print("(");
       int i = 0;
-      for (Texp child : texp) 
+      for (Texp child : texp)
         {
           Type(child.value, proof[i].value);
           if (++i != texp.size()) print(", ");
         }
       print(")");
     }
-  
+
   void Def(Texp texp, Texp proof)
     {
       /// (def name params type do)
@@ -141,13 +141,13 @@ struct LLVMGenerator {
       Type(texp[2], proof[2]);
       print(" ", texp[0].value, "(");
       Params(texp[1], proof[1]);
-      
+
       print(") {\nentry:\n");
       size_t if_count = 0;
       Do(texp[3], proof[3], if_count);
       print("}\n");
     }
-  
+
   void Params(Texp texp, Texp proof)
     {
       int i = 0;
@@ -160,7 +160,7 @@ struct LLVMGenerator {
           if (++i != texp.size()) print(", ");
         }
     }
-  
+
   void Do(Texp texp, Texp proof, size_t& if_count)
     {
       int i = 0;
@@ -184,7 +184,7 @@ struct LLVMGenerator {
         });
       print("\n");
     }
-  
+
   // FIXME: implement if statements without passing around if_count
   void If(Texp texp, Texp proof, size_t& if_count)
     {
@@ -199,14 +199,14 @@ struct LLVMGenerator {
       print("  br label %post", if_num, "\n");
       print("post", if_num, ":");
     }
-  
+
   void Auto(Texp texp, Texp proof)
     {
       //FIXME: consider adding alloca and using let
       print(texp[0].value, " = alloca ");
       Type(texp[1], proof[1]);
     }
-  
+
   void Store(Texp texp, Texp proof)
     {
       // store value type loc-value
@@ -218,13 +218,13 @@ struct LLVMGenerator {
       Type(texp[1], proof[1]);
       print("* ", texp[2].value);
     }
-  
+
   void Let(Texp texp, Texp proof)
     {
       print(texp[0].value, " = ");
       Expr(texp[1], proof[1]);
     }
-  
+
   void Return(Texp texp, Texp proof)
     {
       UnionMatch(grammar, "Return", texp, proof,
@@ -233,7 +233,7 @@ struct LLVMGenerator {
           {"ReturnVoid", [&](const auto& t, const auto& p) { ReturnVoid(t, p); } },
         });
     }
-  
+
   void ReturnExpr(Texp texp, Texp proof)
     {
       print("ret ");
@@ -241,12 +241,12 @@ struct LLVMGenerator {
       print(" ");
       Value(texp[0], proof[0]);
     }
-  
+
   void ReturnVoid(Texp texp, Texp proof)
     {
       print("ret void");
     }
-  
+
   void Value(Texp texp, Texp proof)
     {
       UnionMatch(grammar, "Value", texp, proof,
@@ -256,20 +256,20 @@ struct LLVMGenerator {
           {"StrGet",  [&](const auto& t, const auto& p) { StrGet(t, p, /*as-value*/true); } },
         });
     }
-  
+
   void Literal(Texp texp, Texp proof)
     {
       // Note: could switch between Bool- and IntLiterals, but there is no
       // difference in the procedure
       print(texp.value);
     }
-  
+
   void StrGet(Texp texp, Texp proof, bool as_value)
     {
       // (str-get index)
 
       bool found = false;
-      
+
       for (int i = 0; i < this->root.size(); ++i)
         {
           auto& table = this->root[i];
@@ -279,7 +279,7 @@ struct LLVMGenerator {
               found = true;
               size_t index = std::strtoul(texp[0].value.c_str(), nullptr, 10);
               size_t strlen = atomStrLen(table[index][0].value.c_str()) - 2;
-              
+
               print("getelementptr inbounds ");
               if (as_value) print("(");
               print("[", strlen, " x i8], [", strlen, " x i8]* @str.", index, ", i64 0, i64 0");
@@ -287,10 +287,10 @@ struct LLVMGenerator {
               break;
             }
         }
-      
-      CHECK(found, "could not find string table in root"); 
+
+      CHECK(found, "could not find string table in root");
     }
-  
+
   void Type(Texp texp, Texp proof)
     {
       using namespace LLVMType;
@@ -304,12 +304,12 @@ struct LLVMGenerator {
 
           std::string base_type = type.substr(0, type.length() - indirection_count);
           std::string indirection = type.substr(type.length() - indirection_count);
-          
+
           if (isUnsignedInt(base_type))
             print("i", base_type.substr(1));
           else
             print(base_type);
-            
+
           print(indirection);
         }
       else if (isUnsignedInt(texp.value))
@@ -322,7 +322,7 @@ struct LLVMGenerator {
     {
       print(texp.value);
     }
-  
+
   void Expr(Texp texp, Texp proof)
     {
       UnionMatch(grammar, "Expr", texp, proof,
@@ -339,7 +339,7 @@ struct LLVMGenerator {
           }},
         });
     }
-  
+
   void MathBinop(Texp texp, Texp proof)
     {
       // op type value value
@@ -379,14 +379,14 @@ struct LLVMGenerator {
 
   void Index(Texp texp, Texp proof)
     {
-      // (index PtrValue StructName IntValue) 
+      // (index PtrValue StructName IntValue)
       // IntValue has to be an IntLiteral for structs
       // it can be another kind of Int typed value otherwise
       CHECK(texp[1].value.starts_with("%struct."), "type does not start with %struct:\n  " + proof.paren());
       print("getelementptr inbounds ", texp[1].value, ", ", texp[1].value, "* ", texp[0].value, ", i32 0, i32 ");
       Value(texp[2], proof[2]);
     }
-  
+
   void Cast(Texp texp, Texp proof)
     {
       // (bitcast/inttoptr/ptrtoint TypeFrom TypeTo Value)
@@ -397,7 +397,7 @@ struct LLVMGenerator {
       print(" to ");
       Type(texp[1], proof[1]);
     }
-  
+
   void Icmp(Texp texp, Texp proof)
     {
       // (comp_binop type left right)
@@ -411,13 +411,13 @@ struct LLVMGenerator {
         print("eq");
       else if (t->name == "NE")
         print("ne");
-      else 
+      else
         {
           if      (texp[0].value[0] == 'u') print("u");
           else if (texp[0].value[0] == 'i') print("s");
           else
-            CHECK(false, "unexpected value for type of icmp: '" + texp[0].value + "'")    
-            
+            CHECK(false, "unexpected value for type of icmp: '" + texp[0].value + "'")
+
           if      (t->name == "LT") print("lt");
           else if (t->name == "LE") print("le");
           else if (t->name == "GT") print("gt");
@@ -425,7 +425,7 @@ struct LLVMGenerator {
           else
             CHECK(false, "unexpected kind of icmp: '" + texp.value + "'");
         }
-      
+
       print(" ");
       Type(texp[0], proof[0]);
       print(" ");
@@ -433,17 +433,17 @@ struct LLVMGenerator {
       print(", ");
       Value(texp[2], proof[2]);
     }
-  
+
   void Load(Texp texp, Texp proof)
     {
       // (load type value)e
-      print("load "); 
+      print("load ");
       Type(texp[0], proof[0]);
       print(", ");
       Type(texp[0], proof[0]);
       print("* ", texp[1].value);
     }
-  
+
   void Call(Texp texp, Texp proof)
     {
       UnionMatch(grammar, "Call", texp, proof,
@@ -453,7 +453,7 @@ struct LLVMGenerator {
           {"CallTail",  [&](const auto& t, const auto& p) { print("tail "); CallBasic(t, p); } },
         });
     }
-  
+
   void CallBasic(Texp texp, Texp proof)
     {
       // (call name types type args)
@@ -483,15 +483,15 @@ struct LLVMGenerator {
               Types(decl[1], decl_proof[1]);
 
               print(" ", texp[0].value);
-              
+
               CHECK(texp[3].size() == texp[1].size(), "argument values and their type listings don't match in quantity");
               Args(texp[3], proof[3], texp[1], proof[1]);
             }
         }
-      
+
       CHECK(found, "could not find declaration matching " + texp[0].value);
     }
-  
+
   void Args(Texp texp, Texp proof, Texp types, Texp types_proof)
     {
       print("(");
@@ -504,7 +504,7 @@ struct LLVMGenerator {
           Value(arg, proof[i]);
 
           i++;
-          if (i != texp.size()) print(", ");          
+          if (i != texp.size()) print(", ");
         }
       print(")");
     }
