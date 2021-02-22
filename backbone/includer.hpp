@@ -36,7 +36,7 @@ Texp Program(const Texp& texp)
 
     _basename = basename(texp.value);
     _dirname  = dirname (texp.value);
-    
+
     for (int i = 0; i < texp.size(); ++i)
       for (auto child : TopLevel(texp[i], program_proof[i]))
         this_program.push(child);
@@ -63,8 +63,7 @@ Texp Include(const Texp& texp, const Texp& proof)
 
     auto filename = _dirname + remove_quotes_from_str(texp[0].value);
 
-    Includer includer;
-    Texp result = includer.Program(parse_from_file(filename));
+    Texp result = Program(parse_from_file(filename));
     result.value = "*TopLevel";
     return result;
   }
