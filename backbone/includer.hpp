@@ -63,7 +63,10 @@ Texp Include(const Texp& texp, const Texp& proof)
 
     auto filename = _dirname + remove_quotes_from_str(texp[0].value);
 
-    Texp result = Program(parse_from_file(filename));
+    // NOTE: this includer instance is to allow for a recursive stack
+    // - needed for multiple relative-paths includes
+    Includer includer;
+    Texp result = includer.Program(parse_from_file(filename));
     result.value = "*TopLevel";
     return result;
   }
