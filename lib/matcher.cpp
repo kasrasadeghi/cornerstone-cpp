@@ -36,7 +36,7 @@ Texp Matcher::sequence(const Texp& texp, const Texp& type_names, int start, int 
         Texp result_i = is(texp[i], type_names[i - start].value);
         if (result_i.value == "error")
           return result_i; // TODO consider incrementing proof
-        else 
+        else
           proof.push(result_i[0]);
       }
     return {"success", {proof}};
@@ -87,7 +87,7 @@ Texp Matcher::choice(const Texp& texp, const Texp& rule)
   }
 
 Texp Matcher::kleene(const Texp& texp, std::string_view type_name, int first)
-  { 
+  {
     Texp proof {"kleene"};
     for (int i = first; i < texp.size(); ++i)
       {
@@ -108,18 +108,18 @@ Texp Matcher::matchValue(const Texp& texp, const Texp& rule)
     if (rule.value[0] == '#')
       {
         if (rule.value == "#int")
-          return regexInt(texp.value) 
+          return regexInt(texp.value)
             ? Texp("success", {rule.value})
             : Texp{"error", {"\"'" + texp.value + "' failed to match #int\""}};
 
         else if (rule.value == "#string")
-          return regexString(texp.value) 
-            ? Texp("success", {rule.value}) 
+          return regexString(texp.value)
+            ? Texp("success", {rule.value})
             : Texp{"error", {"\"'" + texp.value + "' failed to match #string\""}};
 
         else if (rule.value == "#bool")
-          return texp.value == "true" || texp.value == "false" 
-            ? Texp{"success", {rule.value}} 
+          return texp.value == "true" || texp.value == "false"
+            ? Texp{"success", {rule.value}}
             : Texp{"error", {"\"'" + texp.value + "' failed to match #bool\""}};
 
         else if (rule.value == "#type")
@@ -127,11 +127,11 @@ Texp Matcher::matchValue(const Texp& texp, const Texp& rule)
 
         else if (rule.value == "#name")
           return Texp("success", {rule.value}); //TODO
-        
+
         else
           CHECK(false, "\"Unmatched regex check for rule.value\"");
       }
-    else 
+    else
       {
         return texp.value == rule.value
           ? Texp("success", {rule.value})
@@ -162,7 +162,7 @@ Texp Matcher::matchKleene(const Texp& texp, const Texp& rule)
       return {"error", {Texp("kleene-seq-fail"), seq, Texp(std::string(type_name))}}; // TODO add %texp as last argument once we have a collapsable viewer of texps
     for (Texp child : seq[0])
       proof.push(child);
-    
+
     auto kle = kleene(texp, type_name, rule.size() - 1);
     if (kle.value == "error")
       return {"error", {Texp("kleene-many-fail"), kle, Texp(std::string(type_name))}}; // TODO add %texp as last argument once we have a collapsable viewer of texps
@@ -184,7 +184,7 @@ Texp Matcher::match(const Texp& texp, const Texp& rule)
   {
     if (rule.value == "|")
       return choice(texp, rule);
-    
+
     Texp value_result = matchValue(texp, rule);
     if (value_result.value == "error")
       return value_result;
@@ -226,10 +226,10 @@ Grammar::Type parseChoice(const Grammar& g, const Texp& proof, std::string_view 
     // get the location of the Type we're choosing from
     unsigned long choice_index = s.find(parent_type_name);
     CHECK(choice_index != std::string::npos, s + " is not a choice of " + std::string(parent_type_name));
-    
+
     std::string rest = s.substr(choice_index + parent_type_name.size());
     CHECK(rest.substr(0, 9) == "/choice->", std::string(rest.substr(7)) + " doesn't have '/choice->' after " + std::string(parent_type_name));
-    
+
     // get the type immediately proceeding the choice
     rest = rest.substr(9);
     std::string type_name = rest.substr(0, rest.find('/'));
