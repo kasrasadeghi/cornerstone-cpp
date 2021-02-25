@@ -1,0 +1,56 @@
+; CONSIDER how should passes carry around and compose proofs?
+
+; minimal grammar description
+(grammar
+  (Program  (#name (* TopLevel)))
+  (TopLevel (| Include [other-toplevels]))
+  (Include  (include String))
+)
+
+(output-grammar
+  (Program (#name (* TopLevel)))
+  (TopLevel (| [other-toplevels]))
+)
+
+(struct %struct.Loc
+  (%basename %struct.String)
+  (%dirname  %struct.String)
+)
+
+(env (stack %struct.Loc))
+
+(Program->Program (capture %filename:String %children:*TopLevels)
+  (do
+    (let %curr (env push))
+    (store-in (field "basename" %curr) (call @basename %filename))
+    (store-in (field "dirname" %curr)  (call @dirname  %filename))
+    (return (traverse %children))
+  )
+)
+
+; alternate syntax:
+;  input    return-type
+; (Program (-> Program) (capture %filename:String %children:*TopLevels)
+;   (do
+;     (let %curr (env push))
+;     (store-in (field "basename" %curr) (call @basename %filename))
+;     (store-in (field "dirname" %curr)  (call @dirname  %filename))
+;     (return (traverse %children))
+;   )
+; )
+
+; "traverse" calls the rest of the module's functions on the children, possibly using a catamorphism
+; - traverse should return the proof
+; "identity" returns the children as is, not recursing down
+
+; run the matcher on the parsed file so that we have a proof of structure we can recurse on
+; CONSIDER when does the matcher check that there are no more includes?
+; - that feels like a pretty different kind of problem... maybe handled by the patch-matcher? the patch-checker? the patcher-matcher?
+(Include->*TopLevel (capture %name:String)
+  (do
+    (let %prog (call @parse-file %name))
+    (return (matched (Program %prog) $output-grammar))
+  )
+)
+
+; CONSIDER should "capture" be built on top of destructuring in high-level backbone
