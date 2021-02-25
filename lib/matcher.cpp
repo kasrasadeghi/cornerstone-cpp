@@ -214,6 +214,9 @@ Texp Matcher::is(const Texp& t, std::string_view type_name)
   }
 
 
+// FIX: parseChoice does not work on mutually recursive choices.
+// - mutually recursive choices are probably disallowed
+
 // ::Decl       from "TopLevel/choice->Decl/exact", "TopLevel"
 // ::IntLiteral from "Expr/choice->Value/choice->Literal/choice->IntLiteral/exact", "Literal"
 Grammar::Type parseChoice(const Grammar& g, const Texp& proof, std::string_view parent_type_name)
