@@ -9,7 +9,7 @@
 
 /// region pass ///===-------------------------------------===///
 
-static const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> PASSES =
+const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backbone::pass_config =
   {
     {"include",   [](Texp& t) { Includer  p; t = p.Program(t); }},
     {"str",       [](Texp& t) { Str       p; t = p.Program(t); }},
@@ -42,9 +42,9 @@ Texp run_all_passes(const Texp& tree)
 std::string get_passlist(void)
   {
     std::string acc;
-    for (const auto& pass : PASSES)
+    for (const auto& pass : backbone::pass_config)
       {
-        if (&pass != &PASSES[0]) { acc += ", "; }
+        if (&pass != &backbone::pass_config[0]) { acc += ", "; }
         acc += pass.first;
       }
     return acc;
@@ -52,7 +52,7 @@ std::string get_passlist(void)
 
 bool is_pass(std::string_view passname)
   {
-    for (const auto& [curr_passname, passf]: PASSES)
+    for (const auto& [curr_passname, passf]: backbone::pass_config)
       {
         if (passname == curr_passname)
           {
@@ -65,7 +65,7 @@ bool is_pass(std::string_view passname)
 
 Texp run_passes_until(Texp curr, std::string_view passname)
   {
-    for (const auto& [curr_passname, passf] : PASSES)
+    for (const auto& [curr_passname, passf] : backbone::pass_config)
       {
         passf(curr);
         if (curr_passname == passname)
