@@ -10,3 +10,14 @@ Texp PassConfig::run_all_passes(const Texp& tree)
 
     return curr;
   }
+
+std::string PassConfig::get_passlist(void)
+  {
+    std::string acc;
+    for (const auto& pass : pass_table)
+      {
+        if (&pass != &pass_table[0]) { acc += ", "; }
+        acc += pass.first;
+      }
+    return acc;
+  }

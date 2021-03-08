@@ -50,16 +50,7 @@ PassConfig backbone::pass_config {
   }
 };
 
-std::string get_passlist(void)
-  {
-    std::string acc;
-    for (const auto& pass : backbone::pass_config.pass_table)
-      {
-        if (&pass != &backbone::pass_config.pass_table[0]) { acc += ", "; }
-        acc += pass.first;
-      }
-    return acc;
-  }
+
 
 bool is_pass(std::string_view passname)
   {
@@ -87,7 +78,7 @@ Texp run_passes_until(Texp curr, std::string_view passname)
 
     auto str = [](auto s) { return std::string(s); };
 
-    CHECK(false, str("passname '") + str(passname) + str("' not in ") + get_passlist());
+    CHECK(false, str("passname '") + str(passname) + str("' not in ") + backbone::pass_config.get_passlist());
   }
 
 /// endregion pass ///===----------------------------------===///
