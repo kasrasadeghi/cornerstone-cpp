@@ -32,7 +32,7 @@ Texp Program(const Texp& texp, const Texp& proof)
 
     auto str_table = Texp{"str-table"};
     size_t index = 0;
-    for (auto&& entry : env.str_table) 
+    for (auto&& entry : env.str_table)
       str_table.push({std::to_string(index++), {entry}});
     this_program.push(str_table);
 
