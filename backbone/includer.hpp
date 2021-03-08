@@ -2,7 +2,6 @@
 #include "texp.hpp"
 #include "grammar.hpp"
 #include "matcher.hpp"
-#include "pass.hpp"
 #include "result.hpp"
 #include "io.hpp"
 #include "print.hpp"

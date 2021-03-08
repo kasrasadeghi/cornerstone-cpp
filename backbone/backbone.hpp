@@ -1,10 +1,9 @@
 #pragma once
 #include "texp.hpp"
-
-#include <functional>
+#include "pass_config.hpp"
 
 namespace backbone {
-  extern const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> pass_config;
+  extern PassConfig pass_config;
 };
 
 Texp run_all_passes(const Texp& tree);
