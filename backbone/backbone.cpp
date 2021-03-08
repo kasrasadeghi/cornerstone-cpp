@@ -9,7 +9,7 @@
 
 /// region pass ///===-------------------------------------===///
 
-PassConfig backbone::pass_config {
+PassConfig backbone {
   .pass_table = {
     {"include",   [](Texp& t) {
       constexpr std::string_view filename = "bb-type-tall-str-include-grammar.texp";
@@ -50,11 +50,9 @@ PassConfig backbone::pass_config {
   }
 };
 
-
-
 bool is_pass(std::string_view passname)
   {
-    for (const auto& [curr_passname, passf]: backbone::pass_config.pass_table)
+    for (const auto& [curr_passname, passf]: backbone.pass_table)
       {
         if (passname == curr_passname)
           {
@@ -67,7 +65,7 @@ bool is_pass(std::string_view passname)
 
 Texp run_passes_until(Texp curr, std::string_view passname)
   {
-    for (const auto& [curr_passname, passf] : backbone::pass_config.pass_table)
+    for (const auto& [curr_passname, passf] : backbone.pass_table)
       {
         passf(curr);
         if (curr_passname == passname)
@@ -78,7 +76,7 @@ Texp run_passes_until(Texp curr, std::string_view passname)
 
     auto str = [](auto s) { return std::string(s); };
 
-    CHECK(false, str("passname '") + str(passname) + str("' not in ") + backbone::pass_config.get_passlist());
+    CHECK(false, str("passname '") + str(passname) + str("' not in ") + backbone.get_passlist());
   }
 
 /// endregion pass ///===----------------------------------===///
