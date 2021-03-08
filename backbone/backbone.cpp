@@ -50,17 +50,6 @@ PassConfig backbone::pass_config {
   }
 };
 
-Texp run_all_passes(const Texp& tree)
-  {
-    Texp curr = tree;
-
-    (backbone::pass_config.pass_table[0].second)(curr);
-    (backbone::pass_config.pass_table[1].second)(curr);
-    (backbone::pass_config.pass_table[2].second)(curr);
-    (backbone::pass_config.pass_table[3].second)(curr);
-    return curr;
-  }
-
 std::string get_passlist(void)
   {
     std::string acc;
