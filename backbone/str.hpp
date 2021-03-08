@@ -17,16 +17,14 @@ std::vector<std::string> str_table;
 };
 
 struct Str {
-Grammar g;
-Matcher m;
+Grammar& g;
+Matcher& m;
 StrEnv env;
 
-Str(): g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-grammar.texp")[0]), m(g) {}
+Str(Grammar& g_, Matcher& m_): g(g_), m(m_) {}
 
-Texp Program(const Texp& texp)
+Texp Program(const Texp& texp, const Texp& proof)
   {
-    Texp proof = RESULT_UNWRAP(m.is(texp, "Program"), "input is not a bb-type Program");
-
     Texp this_program {texp.value};
 
     for (int i = 0; i < texp.size(); ++i)
