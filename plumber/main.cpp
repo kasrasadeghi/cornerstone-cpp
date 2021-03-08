@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
         // CONSIDER: reading from stdin
         // CONSIDER putting argv[0] as the exec name
         println("USAGE: plumber <file> <pass> <selection>");
-        println("       pass must be in {", get_passlist(), "}");
+        println("       pass must be in {", backbone::pass_config.get_passlist(), "}");
         return 0;
       }
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
       {
         println("ERROR: pass '", passname, "' not found!");
         println("USAGE: plumber <file> <pass> <selection>");
-        println("       pass must be in {", get_passlist(), "}");
+        println("       pass must be in {", backbone::pass_config.get_passlist(), "}");
         return 1;
       }
 
