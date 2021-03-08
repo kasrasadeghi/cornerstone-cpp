@@ -4,6 +4,7 @@
 #include "grammar.hpp"
 #include "matcher.hpp"
 #include "llvmtype.hpp"
+#include "cond.hpp"
 
 /**
  * Calculates the length of the given string, counting escaped characters only once.

@@ -1,4 +1,5 @@
 #include "stack_counter.hpp"
+#include "cond.hpp"
 
 void StackCounter::Let(const Texp& let, const Texp& proof)
   {
@@ -7,7 +8,7 @@ void StackCounter::Let(const Texp& let, const Texp& proof)
     if (not name.starts_with("%$")) return;
 
     _count++;
-    
+
     // Bookkeeping for checking that the digits are actually ascending.
     auto str_to_nat = [](std::string_view s) {
       size_t value = 0;

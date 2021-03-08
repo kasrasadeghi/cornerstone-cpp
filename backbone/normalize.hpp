@@ -5,6 +5,7 @@
 #include "result.hpp"
 #include "stack_counter.hpp"
 #include "config.hpp"
+#include "cond.hpp"
 
 /// region normalize ///===----------------------------------------------===///
 
