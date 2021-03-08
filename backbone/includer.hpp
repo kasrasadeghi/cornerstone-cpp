@@ -13,17 +13,15 @@
 /// a naive includer, like #include in C but without declaration reconciliation.
 /// - uses relative paths from the current file
 struct Includer {
-Grammar g;
-Matcher m;
+Grammar& g;
+Matcher& m;
 std::string _dirname;
 std::string _basename;
 
-Includer():
-  g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-include-grammar.texp")[0]), m(g) {}
+Includer(Grammar& g_, Matcher& m_): g(g_), m(m_) {}
 
-Texp Program(const Texp& texp)
+Texp Program(const Texp& texp, const Texp& proof)
   {
-    Texp program_proof = RESULT_UNWRAP(m.is(texp, "Program"), "given texp is not a bb-type-tall-str-include Program:\n  " + texp.paren());
     Texp this_program {texp.value};
 
     auto basename =
@@ -38,7 +36,7 @@ Texp Program(const Texp& texp)
     _dirname  = dirname (texp.value);
 
     for (int i = 0; i < texp.size(); ++i)
-      for (auto child : TopLevel(texp[i], program_proof[i]))
+      for (auto child : TopLevel(texp[i], proof[i]))
         this_program.push(child);
 
     return this_program;
@@ -65,8 +63,10 @@ Texp Include(const Texp& texp, const Texp& proof)
 
     // NOTE: this includer instance is to allow for a recursive stack
     // - needed for multiple relative-paths includes
-    Includer includer;
-    Texp result = includer.Program(parse_from_file(filename));
+    Includer includer {g, m};
+    Texp source = parse_from_file(filename);
+    Texp source_proof = RESULT_UNWRAP(m.is(source, "Program"), "given texp is not a bb-type-tall-str-include Program:\n  " + source.paren());
+    Texp result = includer.Program(source, source_proof);
     result.value = "*TopLevel";
     return result;
   }

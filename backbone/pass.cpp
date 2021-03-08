@@ -11,7 +11,13 @@
 
 const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backbone::pass_config =
   {
-    {"include",   [](Texp& t) { Includer  p; t = p.Program(t); }},
+    {"include",   [](Texp& t) {
+      Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-include-grammar.texp")[0]};
+      Matcher m {g};
+      Texp proof = RESULT_UNWRAP(m.is(t, "Program"), "given texp is not a bb-type-tall-str-include Program:\n  " + t.paren());
+      Includer i {g, m};
+      t = i.Program(t, proof);
+    }},
     {"str",       [](Texp& t) { Str       p; t = p.Program(t); }},
     {"normalize", [](Texp& t) { Normalize p; t = p.Program(t); }},
     {"typeinfer", [](Texp& t) { TypeInfer p; t = p.Program(t); }},
@@ -20,10 +26,8 @@ const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backb
 Texp run_all_passes(const Texp& tree)
   {
     Texp curr = tree;
-    {
-      Includer i;
-      curr = i.Program(curr);
-    }
+
+    (backbone::pass_config[0].second)(curr);
     {
       Str s;
       curr = s.Program(curr);
