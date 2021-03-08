@@ -14,15 +14,6 @@
 
 int main(int argc, char* argv[])
   {
-    // TODO using backbone::pass_list;
-    const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>>& passes =
-      {
-        {"include",   [](Texp& t) { Includer  p; t = p.Program(t); }},
-        {"str",       [](Texp& t) { Str       p; t = p.Program(t); }},
-        {"normalize", [](Texp& t) { Normalize p; t = p.Program(t); }},
-        {"typeinfer", [](Texp& t) { TypeInfer p; t = p.Program(t); }},
-      };
-
     if (argc != 3)
       {
         // consider reading from stdin runner <pass>
