@@ -12,7 +12,9 @@
 const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backbone::pass_config =
   {
     {"include",   [](Texp& t) {
-      Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-str-include-grammar.texp")[0]};
+      constexpr std::string_view filename = "bb-type-tall-str-include-grammar.texp";
+
+      Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
       Matcher m {g};
       Texp proof = RESULT_UNWRAP(m.is(t, "Program"), "given texp is not a bb-type-tall-str-include Program:\n  " + t.paren());
       Includer i {g, m};
