@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
     // read program
     const Texp program = parse_from_file(filename);
-    Texp curr = run_passes_until(program, passname);
+    Texp curr = backbone.run_passes_until(program, passname);
 
     for (const auto& toplevel : curr)
       {
