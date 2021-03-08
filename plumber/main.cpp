@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     std::string passname = argv[2];
     std::string selector_str = argv[3];
 
-    if (not is_pass(passname))
+    if (not backbone.is_pass(passname))
       {
         println("ERROR: pass '", passname, "' not found!");
         println("USAGE: plumber <file> <pass> <selection>");

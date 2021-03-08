@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     std::string filename = argv[1];
     std::string passname = argv[2];
 
-    if (not is_pass(passname))
+    if (not backbone.is_pass(passname))
       {
         println("ERROR: pass '", passname, "' not found!");
         print("USAGE: runner <file> <pass> for a pass in {", backbone.get_passlist(), "}");
