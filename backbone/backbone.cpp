@@ -1,4 +1,4 @@
-#include "pass.hpp"
+#include "backbone.hpp"
 #include "print.hpp"
 
 #include "includer.hpp"
@@ -9,8 +9,8 @@
 
 /// region pass ///===-------------------------------------===///
 
-const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backbone::pass_config =
-  {
+PassConfig backbone::pass_config {
+  .pass_table = {
     {"include",   [](Texp& t) {
       constexpr std::string_view filename = "bb-type-tall-str-include-grammar.texp";
 
@@ -47,25 +47,26 @@ const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backb
       TypeInfer p {g, m};
       t = p.Program(t, proof);
     }},
-  };
+  }
+};
 
 Texp run_all_passes(const Texp& tree)
   {
     Texp curr = tree;
 
-    (backbone::pass_config[0].second)(curr);
-    (backbone::pass_config[1].second)(curr);
-    (backbone::pass_config[2].second)(curr);
-    (backbone::pass_config[3].second)(curr);
+    (backbone::pass_config.pass_table[0].second)(curr);
+    (backbone::pass_config.pass_table[1].second)(curr);
+    (backbone::pass_config.pass_table[2].second)(curr);
+    (backbone::pass_config.pass_table[3].second)(curr);
     return curr;
   }
 
 std::string get_passlist(void)
   {
     std::string acc;
-    for (const auto& pass : backbone::pass_config)
+    for (const auto& pass : backbone::pass_config.pass_table)
       {
-        if (&pass != &backbone::pass_config[0]) { acc += ", "; }
+        if (&pass != &backbone::pass_config.pass_table[0]) { acc += ", "; }
         acc += pass.first;
       }
     return acc;
@@ -73,7 +74,7 @@ std::string get_passlist(void)
 
 bool is_pass(std::string_view passname)
   {
-    for (const auto& [curr_passname, passf]: backbone::pass_config)
+    for (const auto& [curr_passname, passf]: backbone::pass_config.pass_table)
       {
         if (passname == curr_passname)
           {
@@ -86,7 +87,7 @@ bool is_pass(std::string_view passname)
 
 Texp run_passes_until(Texp curr, std::string_view passname)
   {
-    for (const auto& [curr_passname, passf] : backbone::pass_config)
+    for (const auto& [curr_passname, passf] : backbone::pass_config.pass_table)
       {
         passf(curr);
         if (curr_passname == passname)
