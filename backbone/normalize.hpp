@@ -10,26 +10,24 @@
 /// region normalize ///===----------------------------------------------===///
 
 struct Normalize {
-Grammar g;
-Matcher m;
+Grammar& g;
+Matcher& m;
 StackCounter* _sc;
 
-Normalize():
-  g(parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-tall-grammar.texp")[0]), m(g), _sc(nullptr) {}
+Normalize(Grammar& g_, Matcher& m_): g(g_), m(m_), _sc(nullptr) {}
 
-Texp Program(const Texp& texp)
+Texp Program(const Texp& texp, const Texp& proof)
   {
-    Texp bb_tall_proof = RESULT_UNWRAP(m.is(texp, "Program"), "given texp is not a bb-type-tall Program:\n  " + texp.paren());
     Texp this_program {texp.value};
 
     for (int i = 0; i < texp.size(); ++i)
       {
-        if (parseChoice(g, bb_tall_proof[i], "TopLevel") == g.shouldParseType("Def"))
-          this_program.push(Def(texp[i], bb_tall_proof[i]));
+        if (parseChoice(g, proof[i], "TopLevel") == g.shouldParseType("Def"))
+          this_program.push(Def(texp[i], proof[i]));
         else
           this_program.push(texp[i]);
       }
-    
+
     return this_program;
   }
 
@@ -77,7 +75,7 @@ Texp Stmt(const Texp& texp, const Texp& proof)
         for (Texp stmt : wrapper)
           block.push(stmt);
       }},
-      {"Return", [&](const Texp& t, const Texp& p) { 
+      {"Return", [&](const Texp& t, const Texp& p) {
         // return expr->value
         // - if not ReturnVoid
         if (parseChoice(g, proof, "Return") == g.shouldParseType("ReturnExpr"))
@@ -86,17 +84,17 @@ Texp Stmt(const Texp& texp, const Texp& proof)
             extract_expr(t[0], p[0], this_return);
             block.push(this_return);
           }
-        else 
+        else
           block.push(t);
       }},
-      {"Call",   [&](const Texp& t, const Texp& p) { 
+      {"Call",   [&](const Texp& t, const Texp& p) {
         // call name (args (* expr->value))
         Texp new_args ("args");
         const auto& args = t[1];
         const auto& args_proof = p[1];
         for (int i = 0; i < args.size(); ++i)
           extract_expr(args[i], args_proof[i], new_args);
-        
+
         Texp this_call(t.value, {t[0], new_args});
         block.push(this_call);
       }},
@@ -107,7 +105,7 @@ Texp Stmt(const Texp& texp, const Texp& proof)
         this_if.push(Do(t[1], p[1]));
         block.push(this_if);
       }},
-      {"Store",  [&](const Texp& t, const Texp& p) { 
+      {"Store",  [&](const Texp& t, const Texp& p) {
         // store expr->value expr->value
         Texp this_store {"store"};
         extract_expr(t[0], p[0], this_store);
@@ -142,45 +140,45 @@ Texp Let(const Texp& texp, const Texp& proof)
         const auto& args_proof = p[1];
         for (int i = 0; i < args.size(); ++i)
           extract_expr(args[i], args_proof[i], this_args);
-        
+
         Texp this_call(t.value, {t[0], this_args});
         this_let.push(this_call);
       }},
-      {"MathBinop", [&](const Texp& t, const Texp& p) { 
+      {"MathBinop", [&](const Texp& t, const Texp& p) {
         // + expr->value expr->value
         Texp this_binop (t.value);
         extract_expr(t[0], p[0], this_binop);
         extract_expr(t[1], p[1], this_binop);
         this_let.push(this_binop);
       }},
-      {"Icmp",      [&](const Texp& t, const Texp& p) { 
+      {"Icmp",      [&](const Texp& t, const Texp& p) {
         // < expr->value expr->value
         Texp this_icmp (t.value);
         extract_expr(t[0], p[0], this_icmp);
         extract_expr(t[1], p[1], this_icmp);
         this_let.push(this_icmp);
       }},
-      {"Load",      [&](const Texp& t, const Texp& p) { 
+      {"Load",      [&](const Texp& t, const Texp& p) {
         // load expr->value
         Texp this_load (t.value);
         extract_expr(t[0], p[0], this_load);
         this_let.push(this_load);
       }},
-      {"Index",     [&](const Texp& t, const Texp& p) { 
+      {"Index",     [&](const Texp& t, const Texp& p) {
         // index expr->value expr->value
         Texp this_index (t.value);
         extract_expr(t[0], p[0], this_index);
         extract_expr(t[1], p[1], this_index);
         this_let.push(this_index);
       }},
-      {"Cast",      [&](const Texp& t, const Texp& p) { 
+      {"Cast",      [&](const Texp& t, const Texp& p) {
         // cast to-type expr->value
         Texp this_cast (t.value, {t[0]});
         extract_expr(t[1], p[1], this_cast);
         this_let.push(this_cast);
       }},
-      {"Value",     [&](const Texp& t, const Texp& p) { 
-        if (parseChoice(g, p, "Value") == g.shouldParseType("StrGet")) 
+      {"Value",     [&](const Texp& t, const Texp& p) {
+        if (parseChoice(g, p, "Value") == g.shouldParseType("StrGet"))
           {
             this_let.push(t);
           }
@@ -211,7 +209,7 @@ Texp ExprToValue(const Texp& texp, const Texp& proof)
         Texp let_proof = RESULT_UNWRAP(m.is(let, "Let"), "failed to generate let for " + texp.paren());
         for (Texp stmt : Let(let, let_proof))
           wrapper.push(stmt);
-        
+
         return wrapper;
       }
     else
