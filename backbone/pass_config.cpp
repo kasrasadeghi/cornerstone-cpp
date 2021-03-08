@@ -21,3 +21,16 @@ std::string PassConfig::get_passlist(void)
       }
     return acc;
   }
+
+bool PassConfig::is_pass(std::string_view passname)
+  {
+    for (const auto& [curr_passname, passf]: pass_table)
+      {
+        if (passname == curr_passname)
+          {
+            return true;
+          }
+      }
+
+    return false;
+  }

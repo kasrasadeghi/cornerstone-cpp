@@ -50,19 +50,6 @@ PassConfig backbone {
   }
 };
 
-bool is_pass(std::string_view passname)
-  {
-    for (const auto& [curr_passname, passf]: backbone.pass_table)
-      {
-        if (passname == curr_passname)
-          {
-            return true;
-          }
-      }
-
-    return false;
-  }
-
 Texp run_passes_until(Texp curr, std::string_view passname)
   {
     for (const auto& [curr_passname, passf] : backbone.pass_table)
