@@ -38,7 +38,15 @@ const std::vector<std::pair<std::string_view, std::function<void(Texp&)>>> backb
       Normalize p {g, m};
       t = p.Program(t, proof);
     }},
-    {"typeinfer", [](Texp& t) { TypeInfer p; t = p.Program(t); }},
+    {"typeinfer", [](Texp& t) {
+      constexpr std::string_view filename = "bb-type-grammar.texp";
+
+      Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
+      Matcher m {g};
+      Texp proof = RESULT_UNWRAP(m.is(t, "Program"), "given texp is not a bb-type Program:\n  " + t.paren());
+      TypeInfer p {g, m};
+      t = p.Program(t, proof);
+    }},
   };
 
 Texp run_all_passes(const Texp& tree)
@@ -48,10 +56,7 @@ Texp run_all_passes(const Texp& tree)
     (backbone::pass_config[0].second)(curr);
     (backbone::pass_config[1].second)(curr);
     (backbone::pass_config[2].second)(curr);
-    {
-      TypeInfer t;
-      curr = t.Program(curr);
-    }
+    (backbone::pass_config[3].second)(curr);
     return curr;
   }
 
