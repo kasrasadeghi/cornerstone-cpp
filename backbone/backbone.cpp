@@ -50,20 +50,5 @@ PassConfig backbone {
   }
 };
 
-Texp run_passes_until(Texp curr, std::string_view passname)
-  {
-    for (const auto& [curr_passname, passf] : backbone.pass_table)
-      {
-        passf(curr);
-        if (curr_passname == passname)
-          {
-            return curr;
-          }
-      }
-
-    auto str = [](auto s) { return std::string(s); };
-
-    CHECK(false, str("passname '") + str(passname) + str("' not in ") + backbone.get_passlist());
-  }
 
 /// endregion pass ///===----------------------------------===///

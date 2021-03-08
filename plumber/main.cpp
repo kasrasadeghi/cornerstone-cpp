@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
     const Texp selector = Parser::parseTexp(selector_str);
     const Texp program = parse_from_file(filename);
-    Texp curr = run_passes_until(program, passname);
+    Texp curr = backbone.run_passes_until(program, passname);
 
     // print file
     println("; CMD: plumber ", argv[1], " ", argv[2], " '", argv[3], "'");

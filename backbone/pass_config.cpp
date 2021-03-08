@@ -1,4 +1,5 @@
 #include "pass_config.hpp"
+#include "macros.hpp"
 
 Texp PassConfig::run_all_passes(const Texp& tree)
   {
@@ -33,4 +34,20 @@ bool PassConfig::is_pass(std::string_view passname)
       }
 
     return false;
+  }
+
+Texp PassConfig::run_passes_until(Texp curr, std::string_view passname)
+  {
+    for (const auto& [curr_passname, passf] : pass_table)
+      {
+        passf(curr);
+        if (curr_passname == passname)
+          {
+            return curr;
+          }
+      }
+
+    auto str = [](auto s) { return std::string(s); };
+
+    CHECK(false, str("passname '") + str(passname) + str("' not in ") + get_passlist());
   }
