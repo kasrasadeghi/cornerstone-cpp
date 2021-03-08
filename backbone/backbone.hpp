@@ -2,9 +2,7 @@
 #include "texp.hpp"
 #include "pass_config.hpp"
 
-namespace backbone {
-  extern PassConfig pass_config;
-};
+extern PassConfig backbone;
 
 bool is_pass(std::string_view s);
 

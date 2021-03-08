@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     if (argc != 3)
       {
         // consider reading from stdin runner <pass>
-        print("USAGE: runner <file> <pass> for a pass in {", backbone::pass_config.get_passlist(), "}");
+        print("USAGE: runner <file> <pass> for a pass in {", backbone.get_passlist(), "}");
         return 0;
       }
 
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     if (not is_pass(passname))
       {
         println("ERROR: pass '", passname, "' not found!");
-        print("USAGE: runner <file> <pass> for a pass in {", backbone::pass_config.get_passlist(), "}");
+        print("USAGE: runner <file> <pass> for a pass in {", backbone.get_passlist(), "}");
         return 1;
       }
 
