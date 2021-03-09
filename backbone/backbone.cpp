@@ -7,8 +7,6 @@
 #include "str.hpp"
 #include "stack_counter.hpp"
 
-/// region pass ///===-------------------------------------===///
-
 PassConfig backbone {
   .pass_table = {
     {"include",   [](Texp& t) {
@@ -49,6 +47,3 @@ PassConfig backbone {
     }},
   }
 };
-
-
-/// endregion pass ///===----------------------------------===///
