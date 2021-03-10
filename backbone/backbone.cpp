@@ -10,7 +10,7 @@
 PassConfig backbone {
   .pass_table = {
     {"include",   [](Texp& t) {
-      constexpr std::string_view filename = "bb-type-tall-str-include-grammar.texp";
+      constexpr std::string_view filename = "bb-type-tall-str-include.texp";
 
       Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
       Matcher m {g};
@@ -19,7 +19,7 @@ PassConfig backbone {
       t = i.Program(t, proof);
     }},
     {"str",       [](Texp& t) {
-      constexpr std::string_view filename = "bb-type-tall-str-grammar.texp";
+      constexpr std::string_view filename = "bb-type-tall-str.texp";
 
       Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
       Matcher m {g};
@@ -28,7 +28,7 @@ PassConfig backbone {
       t = s.Program(t, proof);
     }},
     {"normalize", [](Texp& t) {
-      constexpr std::string_view filename = "bb-type-tall-grammar.texp";
+      constexpr std::string_view filename = "bb-type-tall.texp";
 
       Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
       Matcher m {g};
@@ -37,7 +37,7 @@ PassConfig backbone {
       t = p.Program(t, proof);
     }},
     {"typeinfer", [](Texp& t) {
-      constexpr std::string_view filename = "bb-type-grammar.texp";
+      constexpr std::string_view filename = "bb-type.texp";
 
       Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + std::string(filename))[0]};
       Matcher m {g};

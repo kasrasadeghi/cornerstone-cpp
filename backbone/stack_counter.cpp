@@ -46,7 +46,7 @@ void StackCounter::Do(const Texp& texp, const Texp& proof)
       }
   }
 
-StackCounter::StackCounter(const Texp& def, const Texp& proof)
+void StackCounter::Def(const Texp& def, const Texp& proof)
   {
     Do(def[3], proof[3]);
   }

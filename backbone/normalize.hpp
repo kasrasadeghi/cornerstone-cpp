@@ -35,7 +35,8 @@ Texp Def(const Texp& texp, const Texp& proof)
   {
     // def name params type do
     Texp this_def ("def", {texp[0], texp[1], texp[2]});
-    StackCounter sc{texp, proof};
+    StackCounter sc {g, m};
+    sc.Def(texp, proof);
     _sc = &sc;
     this_def.push(Do(texp[3], proof[3]));
     _sc = nullptr;

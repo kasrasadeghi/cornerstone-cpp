@@ -34,7 +34,7 @@ TEST(parser, atoms_newline)
 
 TEST(matcher, return_void_empty)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     ASSERT_EQ("success", m.is(Parser::parseTexp("(return-void)"), "Return").value);
     ASSERT_EQ("error"  , m.is(Parser::parseTexp("(return-void 5)"), "Return").value);
@@ -42,7 +42,7 @@ TEST(matcher, return_void_empty)
 
 TEST(matcher, str_table)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp(R"((0 "Hello World\00"))");
     ASSERT_EQ("success", m.is(t, "StrTableEntry").value);
@@ -50,7 +50,7 @@ TEST(matcher, str_table)
 
 TEST(matcher, let_call)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(let ignored (call puts (types i8*) i32 (args (str-get 0))))");
     ASSERT_EQ("success", m.is(t, "Let").value);
@@ -58,7 +58,7 @@ TEST(matcher, let_call)
 
 TEST(matcher, field)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(a i32)");
     ASSERT_EQ("success", m.is(t, "Field").value);
@@ -77,7 +77,7 @@ TEST(texp, to_string)
 
 TEST(proof, exact_field)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(a i32)");
     auto proof = m.is(t, "Field");
@@ -87,7 +87,7 @@ TEST(proof, exact_field)
 
 TEST(proof, exact_add)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(+ i32 1 2)");
     std::cout << m.is(t, "Add") << std::endl;
@@ -96,7 +96,7 @@ TEST(proof, exact_add)
 
 TEST(proof, typed_int_literal)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-type-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-type.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(i32 2)");
     std::cout << m.is(t, "TypedIntLiteral") << std::endl;
@@ -105,7 +105,7 @@ TEST(proof, typed_int_literal)
 
 TEST(proof, kleene_structure)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
 
     Texp t = Parser::parseTexp("(struct %struct.MyStruct (a i64) (b i64))");
@@ -137,10 +137,10 @@ TEST(type_from_proof, with_parent)
 
     ASSERT_TRUE(choice_index != std::string::npos);
     ASSERT_TRUE(rest.substr(0, 9) == "/choice->");
-    
+
     CHECK(choice_index != 0, s + " is not a choice of " + std::string(choice_type_name));
     CHECK(rest.substr(0, 9) == "/choice->", std::string(rest.substr(7)) + " doesn't have '/choice->' after " + std::string(choice_type_name));
-    
+
     // get the type immediately proceeding the choice
     rest = rest.substr(9);
     std::cout << rest << std::endl;
@@ -151,7 +151,7 @@ TEST(type_from_proof, with_parent)
 
 TEST(StackCounter, ctor)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp("(def @main (params) i32 (do (let %$0 (+ i32 1 2)) (return 0 i32) ))");
     ASSERT_EQ("success", m.is(t, "Def").value);
@@ -161,7 +161,7 @@ TEST(StackCounter, ctor)
 
 TEST(StackCounter, ctor_if_do)
   {
-    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb-grammar.texp")[0]};
+    Grammar g {parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]};
     Matcher m {g};
     Texp t = Parser::parseTexp(
       " (def @main (params) i32 (do "
@@ -190,10 +190,10 @@ TEST(Normalize, simple_if_stmt)
     Texp prog = Parser::parseTexp("(def main params i32 (do (if (< %argc 3) (do (call @puts (args (str-get 0)))))))");
     Normalize n;
     ASSERT_EQ("success", n.m.is(prog, "Def").value);
-    
+
     auto cond = prog[3][0][0];
     print(cond, '\n');
-    
+
     auto prog_p = RESULT_UNWRAP(n.m.is(prog, "Def"), "should be def");
     auto cond_p = prog_p[3][0][0];
     print(cond_p, '\n');
@@ -204,7 +204,7 @@ TEST(Normalize, simple_if_stmt)
     print(n.ExprToValue(cond, cond_p), '\n');
   }
 
-TEST(gen, indirection_count)  
+TEST(gen, indirection_count)
   {
     using namespace LLVMType;
 
@@ -243,5 +243,5 @@ TEST(string, basename_dirname_relative)
     auto basename = path.substr(path.rfind('/') + 1);
     ASSERT_EQ(basename, "main-driver.bb");
     auto dirname  = path.substr(0, path.rfind('/') + 1);
-    ASSERT_EQ(dirname, "../cornerstone/lib/");    
+    ASSERT_EQ(dirname, "../cornerstone/lib/");
   }
