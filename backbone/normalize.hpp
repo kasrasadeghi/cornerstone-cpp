@@ -135,7 +135,7 @@ Texp Let(const Texp& texp, const Texp& proof)
 
     UnionMatch(g, "Expr", texp[1], proof[1], {
       {"Call",      [&](const Texp& t, const Texp& p) {
-        // call name types type (args (* expr->value))
+        // call name (args (* expr->value))
         Texp this_args ("args");
         const auto& args = t[1];
         const auto& args_proof = p[1];
