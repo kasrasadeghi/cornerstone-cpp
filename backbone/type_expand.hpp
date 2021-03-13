@@ -24,7 +24,7 @@
 
 
 struct TypeExpandEnv {
-std::unordered_map<std::string, Texp> globals;
+std::unordered_map<std::string, Texp> _globals;
 Texp* _current_def_return_type;
 std::unordered_map<std::string, std::string> _locals;
 Texp* curr_def_name;
@@ -36,6 +36,13 @@ void addLocal(const std::string& key, const std::string& value)
     _locals.emplace(key, value);
   }
 
+void addGlobal(const std::string& key, const Texp& value)
+  {
+    DEBUG(print("; ", key, " -> ", value.paren(), '\n'));
+    _globals.emplace(key, value);
+  }
+
+
 Texp lookup(const std::string& name)
   {
     if (name.starts_with('%') && not name.starts_with("%struct."))
@@ -45,8 +52,8 @@ Texp lookup(const std::string& name)
       }
     else
       {
-        CHECK(globals.contains(name), "no global named " + name + " in function " + curr_def_name->value);
-        return globals.at(name);
+        CHECK(_globals.contains(name), "no global named " + name + " in function " + curr_def_name->value);
+        return _globals.at(name);
       }
   }
 
@@ -104,13 +111,13 @@ void TopLevelEnv(const Texp& texp, const Texp& proof)
     UnionMatch(g, "TopLevel", texp, proof, {
       //StrTable Struct Def Decl
       {"Struct", [&](const Texp& t, const Texp& p) {
-        env.globals.emplace(t[0].value, t);
+        env.addGlobal(t[0].value, t);
       }},
       {"Def",    [&](const Texp& t, const Texp& p) {
-        env.globals.emplace(t[0].value, t);
+        env.addGlobal(t[0].value, t);
       }},
       {"Decl",   [&](const Texp& t, const Texp& p) {
-        env.globals.emplace(t[0].value, t);
+        env.addGlobal(t[0].value, t);
       }},
       {"StrTable", [&](const Texp& t, const Texp& p) { /* do nothing */ }},
     });
