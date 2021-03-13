@@ -16,6 +16,7 @@
 // default DEBUG_ENABLED
 #ifndef DEBUG_ENABLED
 #define DEBUG_ENABLED false
+#define DEBUG_ENABLED_FILE_TYPE_EXPAND
 #endif
 
 #define DEBUG(a)    do { if constexpr (DEBUG_ENABLED) { (a); } } while(0);
@@ -512,3 +513,8 @@ Texp Value(const Texp& texp, const Texp& proof)
 
 
 #undef DEBUG
+
+#ifdef DEBUG_ENABLED_FILE_TYPE_EXPAND
+#undef DEBUG_ENABLED
+#undef DEBUG_ENABLED_FILE_TYPE_EXPAND
+#endif
