@@ -19,3 +19,5 @@ add_library(${LIB_NAME} STATIC "${${TARGET_NAME}_src}")
 target_link_libraries(${LIB_NAME} cornerstonelib_debug)
 target_include_directories(${LIB_NAME} PUBLIC ${PROJECT_ROOT}/lib)
 target_compile_options(${LIB_NAME} PRIVATE -g -O0)
+
+# cd ~/projects/cornerstone-cpp; make; (cd ../cornerstone; make matcher)
