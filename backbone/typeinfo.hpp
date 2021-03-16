@@ -27,8 +27,8 @@ struct TypeInfoEnv {
 std::unordered_map<std::string, Texp> _globals;
 const Texp* _current_def_return_type;
 std::unordered_map<std::string, std::string> _locals;
-Texp result;
 const Texp* curr_def_name;
+Texp result = {"typeinfo"};
 Texp* _curr_def_in_result;
 
 public:
@@ -37,7 +37,8 @@ void startDef(const Texp& def, const Texp& proof)
   {
     _current_def_return_type = &def[2];
     curr_def_name = &def[0];
-
+    result.push(*curr_def_name);
+    _curr_def_in_result = &result.back();
   }
 
 void endDef(const Texp& def, const Texp& proof)
@@ -52,14 +53,15 @@ void addLocal(const std::string& key, const std::string& value)
   {
     DEBUG(print("; ", key, " -> ", value, '\n'));
     _locals.emplace(key, value);
-    curr_def_in_result->push({key, {value}});
+    assert(_curr_def_in_result != nullptr);
+    _curr_def_in_result->push({key, {value}});
   }
 
 void addGlobal(const std::string& key, const Texp& value)
   {
     DEBUG(print("; ", key, " -> ", value.paren(), '\n'));
     _globals.emplace(key, value);
-    result.push({key, {value}});
+    // result.push({key, {value}});
   }
 
 
@@ -155,9 +157,8 @@ Texp Def(const Texp& texp, const Texp& proof)
   {
     // def name params type do
     DEBUG(print("; def ", texp[0], " env\n"));
-    Texp this_params = Params(texp[1], proof[1]);
-
     env.startDef(texp, proof);
+    Texp this_params = Params(texp[1], proof[1]);
     Texp this_def = {"def", {texp[0], this_params, texp[2], Do(texp[3], proof[3])} };
     env.endDef(texp, proof);
 
