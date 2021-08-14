@@ -40,9 +40,25 @@ Texp PassConfig::run_passes_until(Texp curr, std::string_view passname)
   {
     for (const auto& [curr_passname, passf] : pass_table)
       {
-        passf(curr);
+        passf(curr); // passed by reference
         if (curr_passname == passname)
           {
+            return curr;
+          }
+      }
+
+    auto str = [](auto s) { return std::string(s); };
+
+    CHECK(false, str("passname '") + str(passname) + str("' not in ") + get_passlist());
+  }
+
+Texp PassConfig::run_single_pass(Texp curr, std::string_view passname)
+  {
+    for (const auto& [curr_passname, passf] : pass_table)
+      {
+        if (curr_passname == passname)
+          {
+            passf(curr); // passed by reference
             return curr;
           }
       }

@@ -14,33 +14,51 @@
 
 int main(int argc, char* argv[])
   {
-    if (argc != 3)
+    if (argc != 4)
       {
         // consider reading from stdin runner <pass>
-        print("USAGE: runner <file> <pass> for a pass in {", backbone.get_passlist(), "}");
+        print("USAGE: runner <file> [--single|--until] <pass> for a pass in {", backbone.get_passlist(), "}\n");
         return 0;
       }
 
     // parse arguments
     std::string filename = argv[1];
-    std::string passname = argv[2];
+    std::string option = argv[2];
+    std::string passname = argv[3];
+
+    if (option != "--single" && option != "--until")
+      {
+        println("ERROR: option '", option, "' is neither '--single' nor '--until'");
+        print("USAGE: runner <file> [--single|--until] <pass> for a pass in {", backbone.get_passlist(), "}\n");
+      }
 
     if (not backbone.is_pass(passname))
       {
         println("ERROR: pass '", passname, "' not found!");
-        print("USAGE: runner <file> <pass> for a pass in {", backbone.get_passlist(), "}");
+        print("USAGE: runner <file> [--single|--until] <pass> for a pass in {", backbone.get_passlist(), "}\n");
         return 1;
       }
 
     // read program
     const Texp program = parse_from_file(filename);
-    Texp curr = backbone.run_passes_until(program, passname);
 
-    for (const auto& toplevel : curr)
+    Texp result {""};
+    if (option == "--single")
+      {
+        result = backbone.run_single_pass(program, passname);
+      }
+    else
+      {
+        // NOTE: until includes the named pass
+        // assert(option == "--until");
+        result = backbone.run_passes_until(program, passname);
+      }
+
+    for (const auto& toplevel : result)
       {
         println(toplevel.paren());
-        return 0;
       }
+
 
     // TODO prove output
     // Grammar bb_g (parse_from_file(std::string(GRAMMAR_DIR) + "bb.texp")[0]);
